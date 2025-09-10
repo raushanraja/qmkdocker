@@ -1,0 +1,3 @@
+[submodule "data/alk680"]
+	path = data/alk680
+	url = https://github.com/raushanraja/ajazz-akl680-qmk-rp2040.git

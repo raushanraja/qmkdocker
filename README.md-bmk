@@ -1,0 +1,280 @@
+# QMK Firmware Docker Environment
+
+A complete Dockerized development environment for QMK firmware compilation with automated setup and persistent storage. Perfect for keyboard firmware development with support for AVR and ARM microcontrollers.
+
+## ✨ Features
+
+- **Pre-configured Docker container** with all QMK dependencies
+- **One-click setup** with automated QMK firmware installation
+- **Persistent storage** for custom keymaps and build artifacts
+- **Multi-architecture support** (AVR, ARM, STM32)
+- **Complete toolchain** including avrdude, dfu-util, teensy-loader-cli
+- **Volume mounting** for seamless development workflow
+
+## 🚀 Quick Start
+
+### 1. Clone Repository
+
+```bash
+git clone <your-repo-url>
+cd qmk
+```
+
+### 2. Start Environment
+
+```bash
+# Start container (automatic setup on first run)
+docker-compose up -d qmk
+
+# Access container shell
+docker-compose exec qmk bash
+```
+
+### 3. Build Firmware
+
+```bash
+# List available keyboards
+qmk list-keyboards
+
+# Configure your keyboard
+qmk config keyboard=alk680
+qmk config keymap=via
+
+# Compile firmware
+qmk compile -kb alk680 -km via
+
+# Flash to connected keyboard
+qmk flash -kb alk680 -km via
+```
+
+## 📁 Project Structure
+
+```
+qmk/
+├── docker-compose.yml      # Container orchestration
+├── Dockerfile              # Image configuration
+├── setup-qmk.sh           # Automated setup script
+├── .env                   # Environment variables
+├── .dockerignore          # Docker build exclusions
+├── .gitignore             # Git exclusions
+├── data/                  # Persistent storage
+│   ├── alk680/           # Keyboard-specific files
+│   └── build/           # Build artifacts
+│       ├── *.elf         # Executable firmware
+│       ├── *.uf2         # USB flashing format
+│       └── *.tmp         # Temporary files
+└── README.md             # This file
+```
+
+## 🔧 Configuration
+
+### Environment Variables (.env)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `KEYBOARD` | `./data/alk680` | Host keyboard directory |
+| `BUILD` | `./data/build` | Host build output directory |
+| `QMKBUILD` | `/qmk/.build` | Container build directory |
+| `QMKkEYBOARD` | `/qmk/keyboards/alk680/` | Container keyboard directory |
+
+### Volume Mounts
+
+- **Keyboard files**: `./data/alk680:/qmk/keyboards/alk680/`
+- **Build artifacts**: `./data/build:/qmk/.build`
+
+## 🛠️ Common Commands
+
+### Container Management
+
+```bash
+# Start container
+docker-compose up -d qmk
+
+# Stop container
+docker-compose down
+
+# Access shell
+docker-compose exec qmk bash
+
+# View logs
+docker-compose logs qmk
+
+# Rebuild image
+docker-compose build --no-cache qmk
+```
+
+### QMK Development
+
+```bash
+# Setup QMK environment
+qmk setup
+
+# List keyboards
+qmk list-keyboards
+
+# Configure keyboard
+qmk config keyboard=<keyboard_name>
+qmk config keymap=<keymap_name>
+
+# Create new keymap
+qmk new-keymap
+
+# Compile firmware
+qmk compile
+qmk compile -kb <keyboard> -km <keymap>
+
+# Flash firmware
+qmk flash
+qmk flash -kb <keyboard> -km <keymap>
+
+# Check connected devices
+qmk doctor
+```
+
+## 🎯 Custom Keymap Development
+
+### 1. Create Custom Keymap Directory
+
+```bash
+mkdir -p data/alk680/keymaps/my_keymap
+```
+
+### 2. Copy Base Keymap
+
+```bash
+# Access container
+docker-compose exec qmk bash
+
+# Copy existing keymap as template
+cp /qmk/keyboards/alk680/keymaps/via/keymap.c /qmk/keyboards/alk680/keymaps/my_keymap/
+```
+
+### 3. Edit and Build
+
+```bash
+# Edit your keymap
+nano /qmk/keyboards/alk680/keymaps/my_keymap/keymap.c
+
+# Compile custom keymap
+qmk compile -kb alk680 -km my_keymap
+```
+
+## 🔌 Supported Hardware
+
+### Microcontrollers
+- **AVR**: ATmega32U4, AT90USB1286, ATmega328P
+- **ARM**: STM32F1xx, STM32F4xx, STM32L4xx
+- **ARM-based**: ChibiOS/ARM, Kiibohd
+
+### Programming Tools
+- `avrdude` - AVR programming
+- `dfu-util` - DFU programming
+- `dfu-programmer` - DFU bootloader
+- `teensy-loader-cli` - Teensy programming
+
+### Development Tools
+- GCC toolchains (AVR, ARM)
+- Python 3 with QMK CLI
+- Git, wget, curl
+- Build essentials
+
+## 🐛 Troubleshooting
+
+### Permission Issues
+```bash
+# Add user to docker group
+sudo usermod -aG docker $USER
+# Log out and back in
+```
+
+### Container Won't Start
+```bash
+# Check for conflicts
+docker ps -a
+docker-compose down
+docker-compose up -d qmk
+```
+
+### QMK Setup Issues
+```bash
+# Force re-setup
+docker-compose down
+docker volume rm qmk_qmk_firmware
+docker-compose up qmk
+```
+
+### Build Failures
+```bash
+# Clean up docker system
+docker system prune
+# Check disk space
+df -h
+```
+
+## 📚 Build Artifacts
+
+The build process generates files in `data/build/`:
+
+- `*.elf` - Executable and Linkable Format (debugging)
+- `*.uf2` - USB Flashing Format (direct flashing)
+- `*.hex` - Intel HEX format (programming)
+- `*.bin` - Binary format (raw firmware)
+- `*.tmp` - Temporary build files
+
+## 🎨 Example: Building ALK680 VIA Firmware
+
+```bash
+# Start environment
+docker-compose up -d qmk
+docker-compose exec qmk bash
+
+# Configure
+qmk config keyboard=alk680
+qmk config keymap=via
+
+# Build
+qmk compile -kb alk680 -km via
+
+# Check output
+ls -la /qmk/.build/alk680_via.*
+```
+
+## 🔧 Advanced Usage
+
+### Custom Docker Image
+
+1. Modify `Dockerfile` for additional dependencies
+2. Rebuild: `docker-compose build --no-cache qmk`
+
+### Network Configuration
+
+The container uses a bridge network (`qmk-network`) for isolated communication.
+
+### Persistent Data
+
+All keyboard configurations and build artifacts are stored in the `data/` directory, preserved across container restarts.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🙏 Acknowledgments
+
+- [QMK Firmware](https://qmk.fm/) - Open source keyboard firmware
+- [Docker](https://www.docker.com/) - Container platform
+- [QMK Community](https://discord.gg/qmk) - Support and resources
+
+## 📖 Resources
+
+- **QMK Documentation**: https://docs.qmk.fm
+- **QMK Configurator**: https://config.qmk.fm
+- **QMK Discord**: https://discord.gg/qmk
+- **QMK GitHub**: https://github.com/qmk/qmk_firmware

@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  qmk:
+    build: .
+    container_name: qmk-firmware
+    volumes:
+      - ${KEYBOARD}:${QMKkEYBOARD}
+      - ${BUILD}:${QMKBUILD}
+    env_file:
+      - .env
+    stdin_open: true
+    tty: true
+    command: /bin/bash 
+    networks:
+      - qmk-network
+
+networks:
+  qmk-network:
+    driver: bridge
