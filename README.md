@@ -277,4 +277,4 @@ This project is licensed under the MIT License.
 - **QMK Documentation**: https://docs.qmk.fm
 - **QMK Configurator**: https://config.qmk.fm
 - **QMK Discord**: https://discord.gg/qmk
-- **QMK GitHub**: https://github.com/qmk/qmk_firmware# qmkdocker
+- **QMK GitHub**: https://github.com/qmk/qmk_firmware
